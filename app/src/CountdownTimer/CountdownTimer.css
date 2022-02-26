@@ -5,4 +5,5 @@
 
 .timer-container .timer-value {
   font-size: 18px;
+  font-weight: bold;
 }
