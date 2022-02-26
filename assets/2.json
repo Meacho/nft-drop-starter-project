@@ -1,0 +1,28 @@
+{
+  "name": "Member Coin - Ten pence",
+  "symbol": "MARCS",
+  "description": "Collection of 3 Marca temp membership coins. This is the number 3/3.",
+  "seller_fee_basis_points": 500,
+  "image": "2.png",
+  "attributes": [
+    { "trait_type": "Type", "value": "basic" },
+    { "trait_type": "value", "value": "10" },
+    { "trait_type": "colour", "value": "green and gold" },
+    { "trait_type": "Layer-4", "value": "0.1" }
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "2.png",
+        "type": "image/png"
+      }
+    ],
+    "creators": [
+      {
+        "address": "F5JGq89RkqA2vKEG86ogV6mgFnoJ7eQN6S4HQY5eDUMW",
+        "share": 100
+      }
+    ]
+  },
+  "collection": { "name": "basic temp member", "family": "memberships" }
+}
