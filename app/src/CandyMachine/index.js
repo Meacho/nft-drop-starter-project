@@ -5,11 +5,6 @@ import { MintLayout, TOKEN_PROGRAM_ID, Token } from "@solana/spl-token";
 import { sendTransactions } from "./connection";
 import CountdownTimer from "../CountdownTimer";
 import Content from "../Content";
-
-import { Metadata } from "@metaplex/mpl-token-metadata";
-//import data for NFT images added this
-//import nftData from "./../.cache/devnet-temp.json";
-
 import "./CandyMachine.css";
 import {
   candyMachineProgram,
@@ -21,17 +16,25 @@ import {
   CIVIC,
 } from "./helpers";
 
+//import metadata for NFT images added this
+// import { Metadata } from "@metaplex-foundation/mpl-token-metadata";
 const { SystemProgram } = web3;
 const opts = {
   preflightCommitment: "processed",
 };
-//setup useEffect to call function getCandymachine state inside candymachine function below
 
 const CandyMachine = ({ walletAddress }) => {
-  //add state property inside Candy Machine component
+  //add State property inside Candy Machine component
   const [candyMachine, setCandyMachine] = useState(null);
-  //add mints function for showing NFT images
-  //const [mints, setMints] = useState([]);
+  //
+  //
+  // State
+  const [machineStats, setMachineStats] = useState(null);
+  // New state property
+  const [mints, setMints] = useState([]);
+  //
+  //
+
   const getCandyMachineCreator = async (candyMachine) => {
     const candyMachineID = new PublicKey(candyMachine);
     return await web3.PublicKey.findProgramAddress(
@@ -75,7 +78,7 @@ const CandyMachine = ({ walletAddress }) => {
     const candyMachine = await program.account.candyMachine.fetch(
       process.env.REACT_APP_CANDY_MACHINE_ID
     );
-
+    console.log("Our candymachine produces this", candyMachine);
     // Parse out all our metadata and log it out
     const itemsAvailable = candyMachine.data.itemsAvailable.toNumber();
     const itemsRedeemed = candyMachine.itemsRedeemed.toNumber();
@@ -131,47 +134,6 @@ const CandyMachine = ({ walletAddress }) => {
       },
     });
 
-    //Grab image data for display
-    //
-    //
-    //
-    // var mintedItems = [];
-
-    // for (var i = 0; i < itemsRedeemed; i++) {
-    //   mintedItems.push(nftData.items[i]);
-    // }
-
-    // setMints(mintedItems);
-
-    // const genImageURL = async (url) => {
-    //   const response = await fetch(url);
-    //   const data = await response.json();
-    //   return { imageLink: data.image, name: data.name };
-    // };
-    // for (let i = 0; i < itemsRedeemed; i++) {
-    //   const nftLink = nftData.items[i].link;
-    //   const nftObj = await genImageURL(nftLink);
-    //   mintedItems.push(nftObj);
-    // }
-
-    // const renderMintedItems = () => {
-    //   return (
-    //     <div className="gif-grid">
-    //       {" "}
-    //       {mints.map((item) => {
-    //         return (
-    //           <div className="gif-item" key={item.name}>
-    //             <img src={item.imageLink} alt={item.name}></img>
-    //           </div>
-    //         );
-    //       })}
-    //     </div>
-    //   );
-    // };
-    //
-    ///
-    //
-
     console.log({
       itemsAvailable,
       itemsRedeemed,
@@ -181,7 +143,80 @@ const CandyMachine = ({ walletAddress }) => {
       goLiveDateTimeToLocalString,
       presale,
     });
+    console.log(
+      "candymachine length",
+      candyMachine.itemsRedeemed.length.toString()
+    );
+    //
+    //
+    //
+    // const data = await program.account.candyMachine.fetch(
+    //   process.env.REACT_APP_CANDY_MACHINE_ID
+    // );
+    if (candyMachine.itemsRedeemed.length !== 0) {
+      const requests = candyMachine.data.map(async (mint) => {
+        // Get URI
+        try {
+          const response = await fetch(mint.data.uri);
+          const parse = await response.json();
+          console.log("Past Minted NFT", mint);
+          // Get image URI
+          return parse.image;
+        } catch (e) {
+          // If any request fails, we'll just disregard it and carry on
+          console.error("Failed retrieving Minted NFT", mint);
+          return null;
+        }
+      });
+      // Wait for all requests to finish
+      const allMints = await Promise.all(requests);
+      // Filter requests that failed
+      const filteredMints = allMints.filter((mint) => mint !== null);
+      // Store all the minted image URIs
+      setMints(filteredMints);
+    }
+
+    //
+    //
+    //
   };
+  //
+  //
+
+  const renderMintedItems = () => (
+    <div className="gif-container">
+      <p className="sub-text">Minted Items ✨</p>
+      <div className="gif-grid">
+        {mints.map((mint) => (
+          <div className="gif-item" key={mint}>
+            <img src={mint} alt={`Minted NFT ${mint}`} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+  //
+  //
+  //
+  //working on this
+  //const gifList = candyMachine.data.
+
+  // const getMintedNFTs = async () => {
+  //   const candyMachinePubkey = await getCandyMachineCreator(candyMachine.id);
+  //   const findMany = await Metadata.findMany(
+  //     candyMachine.program.provider.connection,
+  //     {
+  //       creators: [candyMachinePubkey[0].toString()],
+  //     }
+  //   );
+  //   console.log(findMany);
+  // };
+
+  //
+  //
+  //
+  //
+  //
 
   const getMetadata = async (mint) => {
     return (
@@ -419,17 +454,6 @@ const CandyMachine = ({ walletAddress }) => {
       candyMachineAddress
     );
 
-    const getMintedNFTs = async () => {
-      const candyMachinePubkey = await getCandyMachineCreator(candyMachine.id);
-      const findMany = await Metadata.findMany(
-        candyMachine.program.provider.connection,
-        {
-          creators: [candyMachinePubkey[0].toString()],
-        }
-      );
-      console.log(findMany);
-    };
-
     instructions.push(
       await candyMachine.program.instruction.mintNft(creatorBump, {
         accounts: {
@@ -507,8 +531,8 @@ const CandyMachine = ({ walletAddress }) => {
               Mint NFT
             </button>
           )}
-          {/* {mints.length > 0 && renderMintedItems()}
-        {isLoadingMints && <p>Loading Mints .... </p>} */}
+          {mints.length > 0 && renderMintedItems()}
+          {/* {isLoadingMints && <p>Loading Mints .... </p>}  */}
         </div>
       </div>
     )
