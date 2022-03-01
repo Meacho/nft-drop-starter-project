@@ -68,6 +68,15 @@ const App = () => {
     </button>
   );
 
+  //meacho
+  //Render Gif container if connected
+  const renderConnectedContainer = () => (
+    <div className="connected-container">
+      <h1>THis is my custom connected content</h1>
+    </div>
+  );
+  //meacho
+
   //useEffect called when component loaded and [] is empty so basically when page loads
   useEffect(() => {
     const onLoad = async () => {
@@ -88,6 +97,7 @@ const App = () => {
             wallet and follows the on screen instructions.
           </p>
           {!walletAddress && renderNotConnectedContainer()}
+          {walletAddress && renderConnectedContainer()}
         </div>
 
         {/* Check for walletAddress and then pass in walletAddress */}
